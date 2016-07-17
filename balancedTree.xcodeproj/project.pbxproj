@@ -201,6 +201,7 @@
 		0B3393A81D3BECD900492100 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				HEADER_SEARCH_PATHS = /Users/l/boost;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -209,6 +210,7 @@
 		0B3393A91D3BECD900492100 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				HEADER_SEARCH_PATHS = /Users/l/boost;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -233,6 +235,7 @@
 				0B3393A91D3BECD900492100 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

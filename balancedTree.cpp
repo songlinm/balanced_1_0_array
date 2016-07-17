@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <iostream>
 #include <boost/multiprecision/cpp_int.hpp>
-#include <boost/math/special_functions/factorials.hpp>
 
 using namespace std;
 using BigIntType = boost::multiprecision::cpp_int;
@@ -25,35 +24,19 @@ struct Key
             columns.push_back(std::make_pair(n/2, n/2));
         }
     }
+    Key(const Key &) = default;
+    Key(Key&&) = default;
 
     bool isValid() const
     {
-        bool ret = true;
-        for (const auto &elm : columns)
-        {
-            if (elm.first < 0 || elm.second < 0)
-            {
-                ret = false;
-                break;
-            }
-        }
-
-        return ret;
+        return std::all_of(columns.begin(), columns.end(),
+                           [](const auto &e) { return e.first >= 0 && e.second >= 0;});
     }
     
     bool isAllZero() const
     {
-        bool ret = true;
-        for (const auto &elm : columns)
-        {
-            if (elm.first != 0 || elm.second != 0)
-            {
-                ret = false;
-                break;
-            }
-        }
-
-        return ret;
+        return std::all_of(columns.begin(), columns.end(),
+                           [](const auto &e) { return e.first == 0 && e.second == 0;});
     }
 
     Key minusRow(const std::vector<int> &row) const
@@ -121,67 +104,81 @@ struct Permutations
     std::vector<int> row_;
 };
 
-std::map<Key, BigIntType> map_;
-
-BigIntType iteratorForK(const Key &key, size_t k)
+class Balanced_0_1_Array_NumCalc
 {
-    BigIntType ret = 0;
-    if (key.isValid())
+public:
+    Balanced_0_1_Array_NumCalc(const size_t n) : n_(n)
     {
-        if (k == 0)
+        if (n & 1)
         {
-            if (key.isAllZero())
-            {
-                ret = 1;
-            }
-        }
-        else
-        {
-            Permutations permutations(key.columns.size());
-
-            do
-            {
-                const Key newKey = key.minusRow(permutations.row_);
-                auto location = map_.find(newKey);
-                if (location != map_.end())
-                {
-
-                    ret += location->second;
-                }
-                else
-                {
-                    auto val = iteratorForK(newKey, k - 1);
-                    ret += val;
-                }
-            } while (permutations.next());
+            throw std::runtime_error("N must be an even number");
         }
     }
+    
+    BigIntType calc()
+    {
+        Key key(n_);
+        return iteratorForK(key, n_);
+    }
+private:
+    size_t n_;
+    std::map<Key, BigIntType> map_;
 
-    map_[key] = ret;
-    return ret;
-}
+    BigIntType iteratorForK(const Key &key, size_t k)
+    {
+        BigIntType ret = 0;
+        if (key.isValid())
+        {
+            if (k == 0)
+            {
+                if (key.isAllZero())
+                {
+                    ret = 1;
+                }
+            }
+            else
+            {
+                Permutations permutations(key.columns.size());
 
-BigIntType getBalancedArrayNum(const size_t n)
-{
-    Key key(n);
-    return iteratorForK(key, n);
-}
+                do
+                {
+                    const Key newKey = key.minusRow(permutations.row_);
+                    auto location = map_.find(newKey);
+                    if (location != map_.end())
+                    {
+
+                        ret += location->second;
+                    }
+                    else
+                    {
+                        auto val = iteratorForK(newKey, k - 1);
+                        ret += val;
+                    }
+                } while (permutations.next());
+            }
+        }
+
+        map_[key] = ret;
+        return ret;
+    }
+
+};
 
 void test()
 {
-    assert(getBalancedArrayNum(0) == 1);
+    assert(Balanced_0_1_Array_NumCalc(0).calc() == 1);
     cout << "Test passed for 0" << endl;
     
-    assert(getBalancedArrayNum(2) == 2);
+    assert(Balanced_0_1_Array_NumCalc(2).calc() == 2);
     cout << "Test passed for 2" << endl;
 
-    assert(getBalancedArrayNum(4) == 90);
+    assert(Balanced_0_1_Array_NumCalc(4).calc() == 90);
     cout << "Test passed for 4" << endl;
     
-    assert(getBalancedArrayNum(6) == 297200);
+    assert(Balanced_0_1_Array_NumCalc(6).calc() == 297200);
     cout << "Test passed for 6" << endl;
 
-    assert(getBalancedArrayNum(8) == BigIntType("116963796250"));
+    assert(Balanced_0_1_Array_NumCalc(8).calc() == BigIntType("116963796250"));
     cout << "Test passed for 8" << endl;
 }
 

@@ -10,26 +10,6 @@
 using namespace std;
 using BigIntType = boost::multiprecision::cpp_int;
 
-template<typename T>
-T getFactorial(const T &n)
-{
-    return boost::math::template factorial<T>(n);
-}
-
-template<>
-BigIntType getFactorial(const BigIntType &n)
-{
-    BigIntType ret = 1;
-    BigIntType itr = 1; 
-    while (itr <=n)
-    {
-        ret *= itr;
-        itr += 1;
-    }
-
-    return ret;
-}
-
 struct Key
 {
     std::vector<std::pair<int, int> > columns;
@@ -93,7 +73,6 @@ struct Key
         }
         return ret;
     }
-
 };
 
 bool operator<(const Key &lhs, const Key &rhs)
@@ -124,10 +103,6 @@ struct Permutations
 {
     Permutations(size_t n)
     {
-        if (n & 1)
-        {
-            throw std::runtime_error("n should be an even number");
-        }
         for (int i = 0; i < n/2; ++i)
         {
             row_.push_back(0);
@@ -148,74 +123,72 @@ struct Permutations
 
 std::map<Key, BigIntType> map_;
 
-BigIntType iterationForN(const Key &key, size_t k)
+BigIntType iteratorForK(const Key &key, size_t k)
 {
-    if (!key.isValid())
+    BigIntType ret = 0;
+    if (key.isValid())
     {
-        return 0;
-    }
-
-    if (k == 0)
-    {
-        if (key.isAllZero())
+        if (k == 0)
         {
-            map_[key] = 1;
-            return 1;
+            if (key.isAllZero())
+            {
+                ret = 1;
+            }
         }
         else
         {
-            return 0;
+            Permutations permutations(key.columns.size());
+
+            do
+            {
+                const Key newKey = key.minusRow(permutations.row_);
+                auto location = map_.find(newKey);
+                if (location != map_.end())
+                {
+
+                    ret += location->second;
+                }
+                else
+                {
+                    auto val = iteratorForK(newKey, k - 1);
+                    ret += val;
+                }
+            } while (permutations.next());
         }
     }
 
-    BigIntType count = 0;
-    Permutations permutations(key.columns.size());
-
-    do
-    {
-        const Key newKey = key.minusRow(permutations.row_);
-        auto location = map_.find(newKey);
-        if (location != map_.end())
-        {
-
-            count += location->second;
-        }
-        else
-        {
-            auto val = iterationForN(newKey, k - 1);
-            count += val;
-        }
-    } while (permutations.next());
-
-    map_[key] = count;
-    return count;
+    map_[key] = ret;
+    return ret;
 }
 
 BigIntType getBalancedArrayNum(const size_t n)
 {
     Key key(n);
-    return iterationForN(key, n);
+    return iteratorForK(key, n);
 }
 
 void test()
 {
     assert(getBalancedArrayNum(0) == 1);
+    cout << "Test passed for 0" << endl;
+    
     assert(getBalancedArrayNum(2) == 2);
+    cout << "Test passed for 2" << endl;
+
     assert(getBalancedArrayNum(4) == 90);
+    cout << "Test passed for 4" << endl;
+    
     assert(getBalancedArrayNum(6) == 297200);
+    cout << "Test passed for 6" << endl;
+
+    assert(getBalancedArrayNum(8) == BigIntType("116963796250"));
+    cout << "Test passed for 8" << endl;
 }
 
 int main(int argc, char *argv[])
 {
-    // test();
+    test();
 
-    for (size_t i = 0; i < 7; ++i)
-    {
-        size_t n = 2*i;
-        auto ret = getBalancedArrayNum(n);
-
-        cout << "ret for " << n << " is " << ret << endl;
-    }
     return 0;
 }
 

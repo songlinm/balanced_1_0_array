@@ -15,10 +15,6 @@ struct Key
 
     Key(size_t n)
     {
-        if (n & 1)
-        {
-            throw std::runtime_error("n expected to be an even number");
-        }
         for (auto i = 0; i < n; ++i)
         {
             columns.push_back(std::make_pair(n/2, n/2));

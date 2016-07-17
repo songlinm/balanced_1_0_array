@@ -201,6 +201,7 @@
 		0B3393A81D3BECD900492100 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = /Users/l/boost;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -208,6 +209,7 @@
 		0B3393A91D3BECD900492100 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = /Users/l/boost;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

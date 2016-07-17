@@ -76,19 +76,22 @@ struct Key
         return ret;
     }
 
-    void minusRow(const std::vector<int> &row)
+    Key minusRow(const std::vector<int> &row) const
     {
+        Key ret = *this;
+        
         for (auto i = 0; i < columns.size(); ++i)
         {
             if (row[i] == 0)
             {
-                --columns[i].first;
+                --ret.columns[i].first;
             }
             else
             {
-                --columns[i].second;
+                --ret.columns[i].second;
             }
         }
+        return ret;
     }
 
 };
@@ -145,7 +148,7 @@ struct Permutations
 
 std::map<Key, BigIntType> map_;
 
-BigIntType iterationForN(Key &key, size_t k)
+BigIntType iterationForN(const Key &key, size_t k)
 {
     if (!key.isValid())
     {
@@ -159,15 +162,19 @@ BigIntType iterationForN(Key &key, size_t k)
             map_[key] = 1;
             return 1;
         }
+        else
+        {
+            return 0;
+        }
     }
 
     BigIntType count = 0;
     Permutations permutations(key.columns.size());
 
-    while (permutations.next())
+    do
     {
-        key.minusRow(permutations.row_);
-        auto location = map_.find(key);
+        const Key newKey = key.minusRow(permutations.row_);
+        auto location = map_.find(newKey);
         if (location != map_.end())
         {
 
@@ -175,10 +182,10 @@ BigIntType iterationForN(Key &key, size_t k)
         }
         else
         {
-            auto val = iterationForN(key, k - 1);
+            auto val = iterationForN(newKey, k - 1);
             count += val;
         }
-    };
+    } while (permutations.next());
 
     map_[key] = count;
     return count;
@@ -202,11 +209,13 @@ int main(int argc, char *argv[])
 {
     // test();
 
-    size_t n = 2;
-    auto ret = getBalancedArrayNum(n);
+    for (size_t i = 0; i < 7; ++i)
+    {
+        size_t n = 2*i;
+        auto ret = getBalancedArrayNum(n);
 
-    cout << "ret for " << n << " is " << ret << endl;
-
+        cout << "ret for " << n << " is " << ret << endl;
+    }
     return 0;
 }
 
